@@ -1,0 +1,15 @@
+# Python environment files
+__pycache__/
+venv/
+.env
+
+# Flask/Gunicorn files
+*.pyc
+
+# Operating System Files
+.DS_Store
+
+# Critical: Keep your Gemini API Key SAFE!
+.gemini.key
+
+*.pptx

@@ -1,0 +1,269 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Image Based Cattle Recognition</title>
+
+    <!-- Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+
+    <style>
+        body {
+            margin: 0;
+            font-family: "Inter", sans-serif;
+            background: #f1f8f3;
+            color: #1b5e20;
+        }
+
+        /* HERO SECTION */
+        .hero {
+            background: #228b22;
+            padding: 30px 20px;
+            text-align: center;
+            color: white;
+            border-radius: 20px;
+            margin: 10px;
+        }
+
+        .hero h1 {
+            font-size: 26px;
+            margin-bottom: 12px;
+        }
+
+        .hero p {
+            max-width: 650px;
+            margin: auto;
+            line-height: 1.5;
+            font-size: 16px;
+        }
+
+        /* UPLOAD SECTION */
+        .upload-container {
+            padding: 20px;
+            max-width: 700px;
+            margin: 20px auto;
+            text-align: center;
+        }
+
+        .drop-zone {
+            border: 2px dashed #66bb6a;
+            padding: 30px;
+            border-radius: 15px;
+            background: #ffffff;
+            color: #2e7d32;
+            transition: 0.3s;
+        }
+
+        .drop-zone.dragover {
+            background: #a5d6a7;
+            color: white;
+            border-color: #2e7d32;
+            transform: scale(1.03);
+        }
+
+        .drop-zone img{
+            width: 100%;
+            max-width: 300px;
+            margin: 15px auto 0;
+            border-radius: 10px;
+            display: none;
+        }
+
+        button {
+            margin-top: 15px;
+            padding: 12px 20px;
+            background: #2e7d32;
+            border: none;
+            border-radius: 8px;
+            color: white;
+            font-size: 16px;
+            cursor: pointer;
+            font-weight: 600;
+        }
+
+        button:hover {
+            background: #226d28;
+        }
+
+        /* LOADER */
+        .loader {
+            border: 6px solid #c8e6c9;
+            border-top: 6px solid #2e7d32;
+            border-radius: 50%;
+            width: 55px;
+            height: 55px;
+            animation: spin 0.9s linear infinite;
+            margin: 20px auto;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        .hidden {
+            display: none;
+        }
+
+        /* RESULT CARD */
+        .result-card {
+            background: #e8f5e9;
+            border: 2px solid #66bb6a;
+            border-radius: 16px;
+            padding: 20px;
+            width: 90%;
+            max-width: 700px;
+            margin: 20px auto;
+            color: #1b5e20;
+            box-shadow: 0 6px 20px rgba(0,0,0,0.15);
+            animation: fadeIn 0.4s ease-in-out;
+        }
+
+        .result-card h2 {
+            font-size: 24px;
+            margin-bottom: 10px;
+        }
+
+        .result-card h3 {
+            margin-top: 15px;
+            font-size: 19px;
+        }
+
+        .result-card ul {
+            padding-left: 20px;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- HERO SECTION -->
+    <section class="hero">
+        <h1>Image Based Cattle Recognition</h1>
+        <p>
+            This system helps farmers identify cattle instantly using image recognition.
+            It simplifies farm management by providing breed details, milk quality,
+            ideal temperature ranges, and more – all through a single photo.
+        </p>
+    </section>
+
+    <!-- UPLOAD BOX -->
+    <div class="upload-container">
+        
+        <div class="drop-zone" id="dropZone">
+            <p><i class="fa-solid fa-image"></i> Drag & drop cattle image here</p>
+            <p>or</p>
+            <input type="file" id="fileInput" accept="image/*">
+            <img id="preview" src="#" alt="Preview" style="display: none;">
+        </div>
+
+        <button onclick="uploadImage()">Analyze Image</button>
+
+        <!-- LOADER -->
+        <div id="loader" class="loader hidden"></div>
+    </div>
+
+    <!-- RESULT CARD -->
+    <div id="result-card" class="result-card hidden">
+        <h2><i class="fa-solid fa-cow"></i> Identified Breed</h2>
+
+        <p><strong>Breed:</strong> <span id="r-breed"></span></p>
+
+        <h3><i class="fa-solid fa-droplet"></i> Milk Quality</h3>
+        <ul id="r-milk"></ul>
+
+        <h3><i class="fa-solid fa-temperature-half"></i> Ideal Temperature</h3>
+        <ul id="r-temp"></ul>
+
+        <h3><i class="fa-solid fa-wheat-awn"></i> Purpose</h3>
+        <p><strong> Effecient Use:</strong> <span id="r-primary"></span></p>
+        <h3><i class="fa-solid fa-stethoscope"></i> Health Report</h3>
+        <p><span id="r-diseases"></span></p>
+        <h3><i class="fa-solid fa-thumbs-up"></i> Confidence</h3>
+        <p><span id="r-secondary"></span></p>
+    </div>
+
+    <!-- JAVASCRIPT -->
+    <script>
+        const preview = document.getElementById("preview");
+        const fileInput = document.getElementById("fileInput");
+        const dropZone = document.getElementById("dropZone");
+        const loader = document.getElementById("loader");
+        const resultCard = document.getElementById("result-card");
+
+        document.getElementById('fileInput').addEventListener('change', function(event){
+            const file = event.target.files[0];
+            if(file){
+                const reader = new FileReader();
+                reader.onload = function(e){
+                    preview.src = e.target.result;
+                    preview.style.display = 'block';
+                }
+                reader.readAsDataURL(file);
+            } else{
+                preview.style.display = 'none';
+            }
+        });
+
+        dropZone.addEventListener("dragover", e => {
+            e.preventDefault();
+            dropZone.classList.add("dragover");
+        });
+
+        dropZone.addEventListener("dragleave", () => {
+            dropZone.classList.remove("dragover");
+        });
+
+        dropZone.addEventListener("drop", e => {
+            e.preventDefault();
+            dropZone.classList.remove("dragover");
+            fileInput.files = e.dataTransfer.files;
+        });
+
+        function uploadImage() {
+            const file = fileInput.files[0];
+            if (!file) return alert("Please select or drop an image!");
+
+            const formData = new FormData();
+            formData.append("file", file);
+
+            loader.classList.remove("hidden");
+            resultCard.classList.add("hidden");
+
+            fetch("/upload", {
+                method: "POST",
+                body: formData
+            })
+                .then(res => res.json())
+                .then(data => {
+                    loader.classList.add("hidden");
+
+                    if (!data.success) {
+                        alert("Error: " + data.error);
+                        return;
+                    }
+
+                    const r = data.output;
+
+                    document.getElementById("r-breed").textContent = r.breed;
+                    document.getElementById("r-milk").innerHTML = r.milk_quality.map(a => `<li>${a}</li>`).join("");
+                    document.getElementById("r-temp").innerHTML = r.temperature.map(a => `<li>${a}</li>`).join("");
+                    document.getElementById("r-primary").textContent = r.purpose_primary;
+                    document.getElementById("r-secondary").textContent = r.purpose_secondary;
+                    document.getElementById("r-diseases").textContent = r.diseases;
+
+                    resultCard.classList.remove("hidden");
+                })
+                .catch(err => {
+                    loader.classList.add("hidden");
+                    alert("Upload failed: " + err);
+                });
+        }
+    </script>
+
+</body>
+</html>
