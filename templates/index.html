@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -62,7 +63,7 @@
             transform: scale(1.03);
         }
 
-        .drop-zone img{
+        .drop-zone img {
             width: 100%;
             max-width: 300px;
             margin: 15px auto 0;
@@ -98,7 +99,9 @@
         }
 
         @keyframes spin {
-            to { transform: rotate(360deg); }
+            to {
+                transform: rotate(360deg);
+            }
         }
 
         .hidden {
@@ -115,7 +118,7 @@
             max-width: 700px;
             margin: 20px auto;
             color: #1b5e20;
-            box-shadow: 0 6px 20px rgba(0,0,0,0.15);
+            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.15);
             animation: fadeIn 0.4s ease-in-out;
         }
 
@@ -134,17 +137,36 @@
         }
 
         @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(10px); }
-            to { opacity: 1; transform: translateY(0); }
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .logout {
+            padding: 0 8px;
         }
     </style>
 </head>
-<body>
 
+<body>
+    <div class="logout"><button id="logoutBtn">Log-out</button></div>
     <!-- HERO SECTION -->
+    <!--<select id="languageSelect">
+        <option value="en">English</option>
+        <option value="ta">தமிழ்</option>
+        <option value="kn">ಕನ್ನಡ</option>
+        <option value="hi">हिंदी</option>
+    </select>-->
+
     <section class="hero">
-        <h1>Image Based Cattle Recognition</h1>
-        <p>
+        <h1 id="title">Image Based Cattle Recognition</h1>
+        <p id="description">
             This system helps farmers identify cattle instantly using image recognition.
             It simplifies farm management by providing breed details, milk quality,
             ideal temperature ranges, and more – all through a single photo.
@@ -153,15 +175,15 @@
 
     <!-- UPLOAD BOX -->
     <div class="upload-container">
-        
+
         <div class="drop-zone" id="dropZone">
-            <p><i class="fa-solid fa-image"></i> Drag & drop cattle image here</p>
-            <p>or</p>
+            <p id="dragDrop"><i class="fa-solid fa-image"></i> Drag & drop cattle image here</p>
+            <p id="or">or</p>
             <input type="file" id="fileInput" accept="image/*">
             <img id="preview" src="#" alt="Preview" style="display: none;">
         </div>
 
-        <button onclick="uploadImage()">Analyze Image</button>
+        <button onclick="uploadImage()" id="uploadbtn">Analyze Image</button>
 
         <!-- LOADER -->
         <div id="loader" class="loader hidden"></div>
@@ -195,16 +217,16 @@
         const loader = document.getElementById("loader");
         const resultCard = document.getElementById("result-card");
 
-        document.getElementById('fileInput').addEventListener('change', function(event){
+        document.getElementById('fileInput').addEventListener('change', function (event) {
             const file = event.target.files[0];
-            if(file){
+            if (file) {
                 const reader = new FileReader();
-                reader.onload = function(e){
+                reader.onload = function (e) {
                     preview.src = e.target.result;
                     preview.style.display = 'block';
                 }
                 reader.readAsDataURL(file);
-            } else{
+            } else {
                 preview.style.display = 'none';
             }
         });
@@ -263,7 +285,61 @@
                     alert("Upload failed: " + err);
                 });
         }
-    </script>
 
+        document.getElementById("logoutBtn").addEventListener("click", () => {
+            window.location.href = "/logout";
+        });
+
+        const translations = {
+                en: {
+                title: "Image Based Cattle Recognition",
+                description: "This system helps farmers identify cattle instantly using image recognition.It simplifies farm management by providing breed details, milk quality,ideal temperature ranges, and more – all through a single photo.",
+                dragDrop: "Drag & drop cattle image here",
+                or: "or",
+                uploadbtn: "Analyze Image"
+                ,logoutBtn: "Log-out"
+            },
+            ta: {
+                title: "பட அடிப்படையிலான மாடு அடையாளம் காணும் அமைப்பு",
+                description: "இந்த அமைப்பு விவசாயிகள் மாடுகளை உடனடியாக அடையாளம் காண உதவுகிறது.ஒரே புகைப்படத்தின் மூலம் இன விவரம், பால் தரம்,சிறந்த வெப்பநிலை மற்றும் மேலும் பல தகவல்களை வழங்கி பண்ணை நிர்வாகத்தை எளிதாக்குகிறது"
+                ,dragDrop: "மாட்டின் படத்தை இங்கே இழுத்து விடவும்",
+                or: "அல்லது",
+                uploadbtn: "படத்தை பகுப்பாய்வு செய்யவும்",
+                logoutBtn: "வெளியேறு"
+            },
+            kn: {
+                title: "ಚಿತ್ರ ಆಧಾರಿತ ಹಸು ಗುರುತింపు",
+                description: "ಈ ವ್ಯವಸ್ಥೆ ಚಿತ್ರಗಳನ್ನು ಬಳಸಿಕೊಂಡು ರೈತರಿಗೆ ಹಸುಗಳನ್ನು ತಕ್ಷಣ ಗುರುತಿಸಲು ಸಹಾಯ ಮಾಡುತ್ತದೆ.ಒಂದು ಫೋಟೋದ ಮೂಲಕ ಹಸುಗಳ ಜಾತಿ ವಿವರ, ಹಾಲಿನ ಗುಣಮಟ್ಟ, ಸೂಕ್ತ ತಾಪಮಾನ ಮತ್ತು ಇನ್ನಷ್ಟು ಮಾಹಿತಿಯನ್ನು ನೀಡುವ ಮೂಲಕ ಕೃಷಿ ನಿರ್ವಹಣೆಯನ್ನು ಸುಲಭಗೊಳಿಸುತ್ತದೆ."
+                ,dragDrop: "ಹಸು ಚಿತ್ರದನ್ನು ಇಲ್ಲಿ ಎಳೆದು ಬಿಡಿ",
+                or: "ಅಥವಾ",
+                uploadbtn: "ಚಿತ್ರವನ್ನು ವಿಶ್ಲೇಷಿಸಿ",
+                logoutBtn: "ಲಾಗ್ ಔಟ್"
+            },
+            hi: {
+                title: "छवि आधारित पशु पहचान",
+                description: "यह प्रणाली छवियों का उपयोग करके किसानों को पशुओं की तुरंत पहचान करने में मदद करती है। एक ही फोटो के माध्यम से नस्ल की जानकारी, दूध की गुणवत्ता, उपयुक्त तापमान और अन्य विवरण प्रदान कर खेती प्रबंधन को आसान बनाती है।"
+                ,dragDrop: "पशु की छवि को यहाँ खींचकर छोड़ें",
+                or: "या"
+                ,uploadbtn: "छवि का विश्लेषण करें",
+                logoutBtn: "लॉग आउट"
+            }
+        };
+
+            function setLanguage(lang) {
+                document.getElementById("title").innerText = translations[lang].title;
+                document.getElementById("description").innerText = translations[lang].description;
+                document.getElementById("dragDrop").innerText = translations[lang].dragDrop;
+                document.getElementById("or").innerText = translations[lang].or;
+                document.getElementById("uploadbtn").innerText = translations[lang].uploadbtn;
+                document.getElementById("logoutBtn").innerText = translations[lang].logoutBtn;
+            }
+
+            document.getElementById("languageSelect").addEventListener("change", (e) => {
+                setLanguage(e.target.value);
+            });
+
+            setLanguage("en");
+    </script>
 </body>
+
 </html>

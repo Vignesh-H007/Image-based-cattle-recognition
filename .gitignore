@@ -13,3 +13,9 @@ venv/
 .gemini.key
 
 *.pptx
+
+users.db
+__pycache__/
+.env
+records.html
+encylopedia.html

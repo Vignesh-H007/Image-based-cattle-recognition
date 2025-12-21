@@ -1,26 +1,91 @@
 import os
 import io
 import json
-# Removed send_from_directory, now using render_template
-from flask import Flask, request, jsonify, render_template
+import sqlite3
+# Added session and redirect
+from flask import Flask, request, jsonify, render_template, session, redirect, url_for
 from google import genai
 from google.genai.errors import APIError
 from PIL import Image
 from pydantic import BaseModel, Field
 from typing import List
 
-# ----------------------------------------------------------------------
-# 1. Configuration
-# ----------------------------------------------------------------------
-# Assumes the structure:
-# my_cattle_app/
-# ├── app.py
-# └── templates/
-#     └── index.html 
+def get_db_connection():
+    conn = sqlite3.connect("users.db")
+    conn.row_factory = sqlite3.Row
+    return conn
+
+def init_db():
+    conn = get_db_connection()
+    cursor = conn.cursor()
+    cursor.execute("""
+        CREATE TABLE IF NOT EXISTS users (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            email TEXT NOT NULL,
+            password TEXT NOT NULL
+        )
+    """)
+
+    conn.commit()
+    conn.close()
+
+init_db()
 
 app = Flask(__name__)
+app.secret_key = "super_secret_cattle_key"  # required for sessions
 
-# Initialize Gemini Client (reads GEMINI_API_KEY from environment)
+# -------------------------------------------------
+# Login Page
+# -------------------------------------------------
+@app.route("/")
+def login_page():
+    return render_template("login.html")
+
+# -------------------------------------------------
+# Login Logic
+# -------------------------------------------------
+@app.route("/login", methods=["POST"])
+def login():
+    data = request.get_json()
+    email = data.get("email")
+    password = data.get("password")
+
+    # simple hardcoded login (as requested)
+    if email == "farmer123@gmail.com" and password == "123456":
+        session["logged_in"] = True
+        return jsonify({"status": "success"})
+    else:
+        return jsonify({"status": "fail"}), 401
+
+# -------------------------------------------------
+# Logout
+# -------------------------------------------------
+@app.route("/logout")
+def logout():
+    session.pop("logged_in", None)
+    return redirect(url_for("login_page"))
+
+# -------------------------------------------------
+# Recognition Page (Protected)
+# -------------------------------------------------
+@app.route("/recognition")
+def recognition_page():
+    if not session.get("logged_in"):
+        return redirect(url_for("login_page"))
+    return render_template("index.html")
+
+@app.route("/encylopedia")
+def encylopedia_page():
+    if not session.get("logged_in"):
+        return redirect(url_for("login_page"))
+    return render_template("encylopedia.html") 
+
+@app.route("/records")
+def record_page():
+    if not session.get("logged_in"):
+        return redirect(url_for("login_page"))
+    return render_template("records.html")
+
 try:
     client = genai.Client()
 except Exception as e:
@@ -46,10 +111,7 @@ class CattleAnalysis(BaseModel):
 # ----------------------------------------------------------------------
 
 # CORRECT ROUTE: Uses render_template to serve the HTML from the 'templates' folder
-@app.route('/')
-def index():
-    """Serves the main HTML page from the templates directory."""
-    return render_template('index.html')
+
 
 # Route to handle the image upload and AI analysis
 @app.route('/upload', methods=['POST'])
@@ -78,7 +140,6 @@ def upload_cattle_photo():
                 "You are an expert livestock analyst. Analyze the provided image of the cattle. "
                 "Identify the breed and provide a detailed analysis of its milk quality, ideal temperature/climate, and primary/secondary purposes. "
                 "Your entire response MUST be a JSON object that strictly conforms to the provided schema."
-                "Return N/A if no cattle is detected"
             )
             
             # Call the Gemini API with the image and structured output config

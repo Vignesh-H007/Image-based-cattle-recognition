@@ -1,0 +1,226 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login | Image Based Cattle Recognition</title>
+
+    <link rel="stylesheet"
+          href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/7.0.1/css/all.min.css"
+          crossorigin="anonymous"/>
+
+    <style>
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            background: #dcdcdc;
+            font-family: Arial, Helvetica, sans-serif;
+            min-height: 100vh;
+            margin: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        /* Main Card */
+        .login {
+            background: #fff;
+            width: 90%;
+            max-width: 520px;
+            min-height: 85vh;
+            border-radius: 20px;
+            padding: 24px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.15);
+        }
+
+        .info {
+            text-align: center;
+            color: #228b22;
+        }
+
+        .info i {
+            font-size: 4rem;
+            color: rgba(34,139,34,0.6);
+        }
+
+        .buttons {
+            background: rgba(34,139,34,0.11);
+            padding: 10px;
+            border-radius: 8px;
+            display: flex;
+            gap: 30px;
+            margin: 15px 0;
+        }
+
+        .buttons button {
+            border-radius: 5px;
+            border: none;
+            padding: 7px 20px;
+            background: transparent;
+            color: #228b22;
+            cursor: pointer;
+        }
+
+        #sign-up {
+            background: #fff;
+        }
+
+        .google {
+            margin: 20px 0;
+        }
+
+        .google a {
+            background: rgba(34,139,34,0.11);
+            text-decoration: none;
+            color: #228b22;
+            padding: 10px 14px;
+            border-radius: 8px;
+            display: inline-block;
+        }
+
+        hr {
+            width: 100%;
+            max-width: 320px;
+            border: 1.5px solid rgba(0,0,0,0.2);
+            margin: 20px 0 10px;
+        }
+
+        .or-text {
+            color: #228b22;
+            font-size: 13px;
+            margin-bottom: 10px;
+        }
+
+        form {
+            width: 100%;
+            max-width: 340px;
+            display: flex;
+            flex-direction: column;
+            align-items: stretch;
+        }
+
+        input {
+            padding: 10px 14px;
+            margin: 10px 0;
+            border-radius: 20px;
+            border: 2px solid #228b22;
+            font-size: 14px;
+            color: #228b22;
+        }
+
+        input::placeholder {
+            color: #228b22;
+        }
+
+        input:focus {
+            outline: none;
+            border-style: dotted;
+        }
+
+        .links {
+            display: flex;
+            justify-content: space-between;
+            margin: 10px 0;
+            font-size: 13px;
+        }
+
+        .links a {
+            color: #228b22;
+            text-decoration: none;
+        }
+
+        .submit {
+            border-radius: 20px;
+            background: #228b22;
+            cursor: pointer;
+            border: none;
+            padding: 10px;
+            color: #fff;
+            margin-top: 10px;
+            font-size: 15px;
+        }
+    </style>
+</head>
+
+<body>
+
+<div class="login">
+    <div class="info">
+        <i class="fa fa-circle-user"></i>
+        <h1 id="title">Get Started</h1>
+        <h3>Identify, monitor, and manage your cattle in one place</h3>
+    </div>
+
+    <div class="buttons">
+        <button id="sign-up" onclick="changeTextToSignUp()">Sign Up</button>
+        <button id="login" onclick="changeTextToLogin()">Login</button>
+    </div>
+
+    <!--<div class="google">
+        <a href="#"><i class="fa-brands fa-google"></i> Continue with Google</a>
+    </div>
+
+    <hr>
+    <div class="or-text">OR CONTINUE WITH EMAIL</div>-->
+
+    <form>
+        <input type="email" id="email" placeholder="farmer123@gmail.com" required>
+        <input type="password" id="password" placeholder="Password (min 6 characters)" required>
+
+        <div class="links">
+            <a href="#" onclick="changeTextToLogin()">Already have an account?</a>
+            <a href="#">Forgot password?</a>
+        </div>
+
+        <button type="submit" class="submit" id="submit">Continue</button>
+    </form>
+</div>
+
+<script>
+const emailInput = document.getElementById("email");
+const passwordInput = document.getElementById("password");
+
+document.getElementById("submit").addEventListener("click", async (e) => {
+    e.preventDefault();
+    const email = emailInput.value;
+    const password = passwordInput.value;
+
+    try {
+        const response = await fetch("/login", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ email, password })
+        });
+
+        const result = await response.json();
+        if (result.status === "success") {
+            window.location.href = "/recognition";
+        } else {
+            alert("Login failed. Check credentials.");
+        }
+    } catch {
+        alert("Server error. Try again later.");
+    }
+});
+
+function changeTextToSignUp() {
+    document.getElementById("title").innerText = "Get Started";
+    document.getElementById("sign-up").style.background = "white";
+    document.getElementById("login").style.background = "transparent";
+}
+
+function changeTextToLogin() {
+    document.getElementById("title").innerText = "Welcome Back";
+    document.getElementById("login").style.background = "white";
+    document.getElementById("sign-up").style.background = "transparent";
+}
+</script>
+
+</body>
+</html>
