@@ -5,4 +5,4 @@ pillow
 numpy
 pydantic
 google-generativeai
-mysql-connecter-python
+mysql-connector-python
