@@ -1,7 +1,6 @@
 import os
 import io
 import json
-import sqlite3
 from flask import Flask, request, jsonify, render_template, session, redirect, url_for
 from google import genai
 from google.genai.errors import APIError
@@ -9,13 +8,6 @@ from PIL import Image
 from pydantic import BaseModel, Field
 from typing import List
 from dotenv import load_dotenv
-
-DB_FOLDER = "/data" 
-if not os.path.isdir(DB_FOLDER):
-    DB_FOLDER = "."
-
-DB_PATH = os.path.join(DB_FOLDER, "users.db")
-
 import psycopg2
 import psycopg2.extras
 
@@ -56,7 +48,7 @@ def init_db():
 init_db()
 
 app = Flask(__name__)
-app.secret_key = "super_secret_cattle_key"  # required for sessions
+app.secret_key = os.getenv("SECRET_KEY", "fallback_secret") # required for sessions
 
 # -------------------------------------------------
 # Login Page
@@ -97,16 +89,19 @@ def signup():
 
     conn = get_db_connection()
     cursor = conn.cursor()
+
     try:
-    cursor.execute(
-        "INSERT INTO users (email, password) VALUES (%s, %s)",
-        (email, password)
-    )
-    conn.commit()
-    session["logged_in"] = True
-    return jsonify({"status": "success"})
-except psycopg2.Error as e:
-    return jsonify({"status": "fail", "message": str(e)}), 500
+        cursor.execute(
+            "INSERT INTO users (email, password) VALUES (%s, %s)",
+            (email, password)
+        )
+        conn.commit()
+        session["logged_in"] = True
+        return jsonify({"status": "success"})
+
+    except psycopg2.Error as e:
+        return jsonify({"status": "fail", "message": str(e)}), 500
+
     finally:
         cursor.close()
         conn.close()
