@@ -28,10 +28,10 @@ def get_db_connection():
 def init_db():
     conn = get_db_connection()
     cursor = conn.cursor()
-    
+
     cursor.execute("""
         CREATE TABLE IF NOT EXISTS users (
-            id INT AUTO_INCREMENT PRIMARY KEY,
+            id SERIAL PRIMARY KEY,
             email VARCHAR(255) NOT NULL,
             password VARCHAR(255) NOT NULL
         )
@@ -39,7 +39,7 @@ def init_db():
 
     cursor.execute("""
         CREATE TABLE IF NOT EXISTS cattles (
-            id INT AUTO_INCREMENT PRIMARY KEY,
+            id SERIAL PRIMARY KEY,
             cattle_type VARCHAR(50),
             cattle_name VARCHAR(100),
             breed VARCHAR(100),
@@ -48,6 +48,7 @@ def init_db():
             health_notes TEXT
         )
     """)
+
     conn.commit()
     cursor.close()
     conn.close()
@@ -74,7 +75,7 @@ def login():
     password = data.get("password")
 
     conn = get_db_connection()
-    cursor = conn.cursor(dictionary=True)
+    cursor = conn.cursor(cursor_factory=psycopg2.extras.RealDictCursor)
     
     cursor.execute("SELECT * FROM users WHERE email = %s AND password = %s", (email, password))
     user = cursor.fetchone()
@@ -97,14 +98,15 @@ def signup():
     conn = get_db_connection()
     cursor = conn.cursor()
     try:
-        cursor.execute("INSERT INTO users (email, password) VALUES (%s, %s)", (email, password))
-        conn.commit()
-        session["logged_in"] = True 
-        return jsonify({"status": "success"})
-    except mysql.connector.Error as err:
-        if err.errno == 1062:
-            return jsonify({"status": "fail", "message": "User already exists"}), 400
-        return jsonify({"status": "fail", "message": str(err)}), 500
+    cursor.execute(
+        "INSERT INTO users (email, password) VALUES (%s, %s)",
+        (email, password)
+    )
+    conn.commit()
+    session["logged_in"] = True
+    return jsonify({"status": "success"})
+except psycopg2.Error as e:
+    return jsonify({"status": "fail", "message": str(e)}), 500
     finally:
         cursor.close()
         conn.close()
@@ -138,7 +140,7 @@ def record_page():
         return redirect(url_for("login_page"))
     
     conn = get_db_connection()
-    cursor = conn.cursor(dictionary=True)
+    cursor = conn.cursor(cursor_factory=psycopg2.extras.RealDictCursor)
     cursor.execute("SELECT * FROM cattles")
     all_records = cursor.fetchall()
     cursor.close()
