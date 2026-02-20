@@ -1,0 +1,577 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Indian Livestock Encyclopedia</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+
+    <style>
+        :root {
+            --primary: #3a5a40;
+            /* Deep Forest Green */
+            --secondary: #84c5e6;
+            /* Sky Blue */
+            --accent: #e9c46a;
+            /* Golden Sand */
+            --bg-light: #f4f9f4;
+            --white: #ffffff;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            background-color: var(--bg-light);
+            font-family: 'Segoe UI', sans-serif;
+            color: #333;
+            line-height: 1.6;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 40px 20px;
+        }
+
+        header {
+            text-align: center;
+            margin-bottom: 40px;
+        }
+
+        header h1 {
+            color: var(--primary);
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+        }
+
+        /* Filter Tabs */
+        .filter-tabs {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            margin-bottom: 40px;
+            flex-wrap: wrap;
+        }
+
+        .filter-btn {
+            padding: 12px 24px;
+            border: 2px solid var(--primary);
+            background: var(--white);
+            color: var(--primary);
+            border-radius: 30px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: 0.3s;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .filter-btn.active,
+        .filter-btn:hover {
+            background: var(--primary);
+            color: var(--white);
+        }
+
+        /* Grid */
+        .breed-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 25px;
+        }
+
+        /* Card */
+        .breed-card {
+            background: var(--white);
+            border-radius: 20px;
+            overflow: hidden;
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.05);
+            cursor: pointer;
+            transition: 0.3s;
+            border-bottom: 6px solid var(--accent);
+        }
+
+        .breed-card:hover {
+            transform: translateY(-8px);
+        }
+
+        .breed-card img {
+            width: 100%;
+            height: 300px;
+            object-fit: cover;
+            background: #eee;
+        }
+
+        .card-content {
+            padding: 20px;
+            text-align: center;
+        }
+
+        .card-content h3 {
+            color: var(--primary);
+            font-size: 1.4rem;
+        }
+
+        /* Modal */
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 2000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.8);
+            backdrop-filter: blur(5px);
+        }
+
+        .modal-content {
+            background: var(--white);
+            margin: 2% auto;
+            width: 90%;
+            max-width: 850px;
+            border-radius: 25px;
+            position: relative;
+            max-height: 90vh;
+            overflow-y: auto;
+            animation: slideIn 0.4s ease-out;
+            padding: 40px;
+        }
+
+        @keyframes slideIn {
+            from {
+                transform: translateY(50px);
+                opacity: 0;
+            }
+
+            to {
+                transform: translateY(0);
+                opacity: 1;
+            }
+        }
+
+        .close-btn {
+            position: absolute;
+            right: 25px;
+            top: 15px;
+            font-size: 35px;
+            cursor: pointer;
+            color: var(--primary);
+        }
+
+        .modal-header-info {
+            border-bottom: 4px solid var(--secondary);
+            margin-bottom: 20px;
+            padding-bottom: 10px;
+        }
+
+        .modal-header-info h2 {
+            color: var(--primary);
+            font-size: 2.2rem;
+        }
+
+        .desc-text {
+            color: #444;
+            font-size: 1.05rem;
+            margin-bottom: 25px;
+            text-align: justify;
+            line-height: 1.8;
+        }
+
+        .info-title {
+            font-size: 1.2rem;
+            font-weight: bold;
+            margin-bottom: 10px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            color: var(--primary);
+        }
+
+        .advice-card {
+            background: var(--secondary);
+            color: #fff;
+            padding: 20px;
+            border-radius: 15px;
+            margin-bottom: 20px;
+        }
+
+        .diet-card {
+            background: var(--accent);
+            color: #443a20;
+            padding: 20px;
+            border-radius: 15px;
+        }
+
+        .navbar {
+            height: 60px;
+            background: #3A5A40;
+            color: white;
+            display: flex;
+            align-items: center;
+            padding: 0 16px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.15);
+            margin-top: 5px;
+        }
+
+        .nav-left {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+        }
+
+        .hamburger {
+            font-size: 26px;
+            cursor: pointer;
+            transition: transform 0.2s ease, color 0.2s ease;
+        }
+
+        .hamburger:hover {
+            transform: scale(1.1);
+            color: #E9C46A;
+        }
+
+        .logo {
+            font-size: 20px;
+            font-weight: bold;
+            letter-spacing: 0.5px;
+        }
+
+        .side-menu {
+            position: fixed;
+            top: 4rem;
+            left: -270px;
+            width: 250px;
+            height: 80vh;
+            background: white;
+            padding-top: 30px;
+            transition: 0.3s ease;
+            z-index: 1000;
+            border-radius: 20px;
+            box-shadow: 0 12px 30px rgba(0, 0, 0, 0.15);
+            border-right: 6px solid #E9C46A;
+        }
+
+        .side-menu ul {
+            list-style: none;
+        }
+
+        .side-menu li {
+            margin: 10px 0;
+        }
+
+        .side-menu a {
+            color: #2F3E46;
+            text-decoration: none;
+            padding: 12px 24px;
+            display: block;
+            border-radius: 8px;
+            font-weight: 600;
+            transition: all 0.2s ease;
+        }
+
+        .side-menu a:hover {
+            background: #E9C46A;
+            color: #003049;
+            border-top-left-radius: 20px;
+            border-bottom-left-radius: 20px;
+            transform: translateX(4px);
+            color: #fff;
+        }
+
+    </style>
+</head>
+
+<body>
+
+    
+    <header class="navbar">
+        <div class="nav-left">
+            <div class="hamburger" id="hamburger">&#9776;</div>
+            <div class="hamburger" id="close" style="display: none;"><i class="fa-solid fa-x"></i></div>
+            <div class="logo">MyCattle</div>
+        </div>
+    </header>
+
+    <nav class="side-menu" id="sideMenu">
+        <ul>
+            <li><a href="/recognition">Cattle Recognition</a></li>
+            <li><a href="/records">Cattle Records</a></li>
+            <li><a href="/encylopedia">Cattle Encyclopedia</a></li>
+            <li><a href="/logout">Logout</a></li>
+        </ul>
+    </nav>
+
+    <div class="container">
+        <header>
+            <h1><i class="fas fa-book-open"></i> Indian Livestock Encyclopedia</h1>
+            <p>Comprehensive Profiles of Native Breeds & Expert Farming Advice</p>
+        </header>
+
+        <div class="filter-tabs">
+            <button class="filter-btn active" onclick="filterCategory('cow', this)">
+                Cow</button>
+            <button class="filter-btn" onclick="filterCategory('buffalo', this)">
+                Buffalo</button>
+            <button class="filter-btn" onclick="filterCategory('sheep', this)">
+                Sheep</button>
+            <button class="filter-btn" onclick="filterCategory('goat', this)"> Goat</button>
+        </div>
+
+        <div class="breed-grid" id="breedGrid"></div>
+    </div>
+
+    <div id="breedModal" class="modal">
+        <div class="modal-content">
+            <span class="close-btn" onclick="closeModal()">&times;</span>
+            <div id="modalBody"></div>
+        </div>
+    </div>
+
+    <script>
+        const livestockData = {
+            cow: [
+                {
+                    name: "Sahiwal",
+                    desc: "The Sahiwal is an elite dairy breed originating from the arid regions of Montgomery. It is characterized by its deep reddish-brown skin and a massive hump, which stores energy for harsh conditions. Unlike exotic breeds, Sahiwals possess a high resistance to ticks and heat, making them a pillar of Indian dairy farming. Their milk is widely celebrated for its high fat content and A2 protein structure, which is easier for humans to digest. Due to their docile nature and longevity, they are considered one of the most profitable indigenous cows for long-term farming.",
+                    advice: "Regularly monitor the cow's activity as they can be lethargic. Grooming is essential to maintain skin health. Ensure proper ventilation in the shed to maximize their cooling during peak summers.",
+                    diet: "Green fodder like Berseem should be the staple (30kg). Supplement with 5kg dry straw and 3kg concentrate mix consisting of wheat bran and mustard oilseed cakes."
+                },
+                {
+                    name: "Gir",
+                    desc: "Native to the Gir forests of Gujarat, this breed is globally recognized for its distinct convex forehead and long, pendulous ears that act as a natural cooling system. Gir cows are highly adaptable animals, thriving in diverse tropical environments from India to Brazil. They are famous for their ability to withstand extreme stress and tropical diseases that often affect cross-bred varieties. The milk yield is substantial, with a high fat and SNF percentage, often used for premium ghee production. They serve as a vital genetic resource for improving milk traits in other indigenous breeds.",
+                    advice: "Gir cows are social; keep them in small groups rather than isolation. They prefer free-range grazing over total confinement. Their udders need careful cleaning before milking due to their shape.",
+                    diet: "Fodder should include Sorghum and Maize stalks. Provide a mineral mixture (50g/day) and ad-libitum clean water to maintain high lactation cycles."
+                },
+                {
+                    name: "Red-Sindhi",
+                    desc: "The Red Sindhi is a resilient dairy breed that is widely distributed across the Indian subcontinent due to its incredible hardiness. Originally from the Sindh region, it is smaller in size than the Sahiwal but often surpasses it in terms of disease resistance. Its mahogany-red coat reflects sunlight effectively, allowing the animal to graze during high temperatures without heat stroke. Red Sindhi bullocks are also efficient workers for small-scale land tilling. This dual capability makes it an ideal choice for farmers who require both milk and labor from their livestock.",
+                    advice: "Focus on preventative vaccinations as they are hardy but can carry silent infections. Best for hilly terrains where larger cows struggle to navigate. Ensure consistent milking timings.",
+                    diet: "Incorporate leguminous fodder like Lucerne for protein. Mix dry wheat straw with green grass in a 1:3 ratio. Add 200g of crushed oilseeds during winter months."
+                },
+                {
+                    name: "Tharparkar",
+                    desc: "Known as the 'White Sindhi,' the Tharparkar is a masterpiece of desert adaptation, originating from the Thar Desert. These cows are unique because they can maintain steady milk production even when forage is scarce and water is limited. Their light-colored skin helps reflect desert heat, and they have excellent walking ability across sandy dunes. Farmers value them for their high fertility and the fact that they rarely require expensive veterinary interventions. As a dual-purpose breed, the bullocks are also highly valued for their strength in transport and agriculture.",
+                    advice: "Tharparkars thrive on minimal shelter but need protection from extreme sandstorms. Their hooves are very strong; however, keep grazing paths clear of sharp debris to avoid injury.",
+                    diet: "Highly efficient at extracting nutrients from desert shrubs. Supplement with dry cluster bean stalks (Guar) and a small portion of crushed barley (1kg daily)."
+                },
+                {
+                    name: "Kankrej",
+                    desc: "The Kankrej is one of the heaviest and most powerful Indian cattle breeds, native to the Rann of Kutch. It is instantly recognizable by its massive lyre-shaped horns and its majestic 'Sawai Chal' gait. This breed is the ultimate dual-purpose animal, providing high-fat milk while the bullocks perform heavy-duty field labor. Kankrej cattle have a thick skin and a specialized sweat gland system that allows them to thrive in humid coastal regions. Their milk is rich in butterfat, making it the primary choice for artisanal butter and ghee producers in Western India.",
+                    advice: "Due to their size, Kankrej cows require spacious housing. Handle them with firm but gentle care, as they are powerful. Their horns should be checked for cracks or fungal growth periodically.",
+                    diet: "Requires high-energy feed: 35kg green fodder, 7kg dry hay, and a concentrate mix of cottonseeds (1.5kg) to maintain their muscle mass and milk fat."
+                },
+                {
+                    name: "Ongole",
+                    desc: "Hailing from Andhra Pradesh, the Ongole is a world-renowned breed famous for its immense strength and resistance to foot-and-mouth disease. These cattle are large and muscular, often appearing white or light grey with a prominent black-shaded hump. Historically, Ongoles were exported to the Americas and Australia to develop heat-resistant beef and dairy varieties. In India, they remain a symbol of agricultural pride, known for their ability to thrive on poor quality forage. They are particularly favored by farmers who practice organic agriculture due to their minimal chemical dependency.",
+                    advice: "Focus on hoof care, as they are large animals that need stable footing. Keep the shed floor dry to prevent fungal infections. Regular deworming is recommended every four months.",
+                    diet: "Primarily natural pasture grazing. Supplement with rice bran, pulse husks, and green maize. Provide salt licks to ensure they receive essential minerals."
+                },
+                {
+                    name: "Rathi",
+                    desc: "The Rathi is a vital dual-purpose breed from the heart of the Rajasthan desert, evolved to be the lifeline of nomadic farmers. It is a mix of Sahiwal, Red Sindhi, and Tharparkar genetics, resulting in a perfectly balanced livestock animal. Rathis are efficient converters of low-quality feed into milk and are famous for their calm and friendly temperament. They can survive on very little water for extended periods, making them ideal for arid regions. For a desert farmer, the Rathi provides both the nutrition of milk and the labor of strong, desert-hardy bullocks.",
+                    advice: "Ensure the shed has a cool roof (like thatch) to mitigate desert heat. Provide water twice a day at fixed intervals. Check their ears for ticks, which are common in sandy areas.",
+                    diet: "Dry desert grasses (Sevan), moth bean straw, and wheat bran. During lactation, add 1kg of sesame oil cake to improve milk quality."
+                }
+            ],
+            buffalo: [
+                {
+                    name: "Murrah",
+                    desc: "The Murrah is the 'Black Gold' of India and the undisputed champion of the dairy world. Originating from Haryana, it is easily identified by its jet-black skin and tightly spiraled horns. Murrah buffaloes produce massive quantities of milk with a fat percentage averaging around 7%, which is perfect for commercial dairy. They have been exported globally to improve local buffalo stocks in more than 30 countries. Their high adaptability to mechanical milking and intensive farming systems makes them the first choice for modern Indian entrepreneurs.",
+                    advice: "Provide a wallowing tank or shower them for 2 hours daily to maintain health. Regularly check their tail switch for cleanliness. Vaccination for H.S. (Hemorrhagic Septicemia) is mandatory.",
+                    diet: "High protein diet is key: 30kg green Berseem, 8kg wheat straw, and 1kg concentrate (Maize/Soybean) for every 2 liters of milk produced."
+                },
+                {
+                    name: "Surti",
+                    desc: "The Surti is a medium-sized buffalo breed from Gujarat, celebrated for its efficiency and sickle-shaped horns. They are relatively smaller than the Murrah, making them easier to manage for small-scale or landless farmers. Surtis are highly economical because they have a high feed-conversion ratio, producing rich milk while consuming less fodder. Their milk is exceptionally high in solids-not-fat (SNF), making it highly valued by milk cooperatives. They are also known for their long reproductive life, often remaining productive for over 15 years.",
+                    advice: "Ideal for farmers with limited space. They are prone to overeating, so monitor feed intake. Ensure they have a dry place to sleep as they are sensitive to damp flooring.",
+                    diet: "Hybrid Napier grass (25kg) and Lucerne. Avoid excessive concentrates; 1kg of balanced cattle feed is sufficient for maintenance."
+                },
+                {
+                    name: "Jaffrabadi",
+                    desc: "Jaffrabadi buffaloes are the giants of the buffalo world, native to the Saurashtra region of Gujarat. They are known for their massive drooping horns and their incredibly docile temperament despite their size. These buffaloes produce milk with the highest fat content (often exceeding 9%), which is the primary source for traditional Indian ghee. Due to their heavy build, they are also used for heavy draught work in rural Gujarat. They require specialized care and a large amount of water but reward the farmer with incredibly high-quality dairy output.",
+                    advice: "Requires extra-large housing and high-quality bedding to prevent pressure sores. They are heavy drinkers; ensure water is always available. Handle with a nose-ring for better control.",
+                    diet: "Requires high-fat intake: Cottonseed cakes and groundnut cakes (2kg daily). Supplement with green maize and abundant coarse roughage."
+                },
+                {
+                    name: "Nili Ravi",
+                    desc: "Nili Ravi buffaloes are the pride of the Punjab region, easily recognized by their white markings on the forehead, face, and legs. They often have 'walled eyes' (white iris), which is a unique genetic trait of the breed. They are considered one of the best milk producers in the world, closely rivaling the Murrah in yield. Nili Ravis are particularly adapted to the canal-rich plains of Northern India and love swimming. Their milk is widely used for producing premium curd and paneer due to its excellent consistency and taste.",
+                    advice: "Keep them away from stagnant water to prevent liver fluke infections. They respond well to human touch; regular patting improves their milk let-down. Ensure yearly FMD vaccinations.",
+                    diet: "Wheat straw mixed with green Berseem. Add 2kg of crushed barley or maize during peak lactation. Provide mineral blocks for licking in the shed."
+                },
+                {
+                    name: "Bhadawari",
+                    desc: "The Bhadawari is a unique buffalo breed found in the Agra and Etawah regions, famous for its copper-colored skin. It is globally recognized for producing milk with an incredibly high fat percentage, reaching up to 13% in some individuals. This breed is exceptionally hardy and can thrive on poor quality fodder and in high temperatures where Murrah buffaloes would struggle. For a farmer focused on ghee production, the Bhadawari is the most efficient animal available. Preserving this breed is considered vital for the future of high-fat dairy genetics in India.",
+                    advice: "Focus on ghee-production business models with this breed. They are very hardy; minimal veterinary care is needed if hygiene is maintained. Avoid over-exposure to direct cold winds.",
+                    diet: "Efficient at digesting coarse roughage. Provide local grasses and dry Jowar stalks. Supplement with 500g of oilseeds to boost fat production further."
+                },
+                {
+                    name: "Mehsana",
+                    desc: "Mehsana buffaloes are a stabilized cross between Murrah and Surti, inheriting the best qualities of both parents. They possess the high milk yield of the Murrah and the docile, efficient nature of the Surti. They are highly favored by commercial dairy cooperatives in Gujarat for their consistent and long lactation periods. Mehsana buffaloes are very regular breeders, which minimizes the 'dry period' for the farmer. Their body is generally longer than a Murrah, and their horns are less curved, making them easy to identify in a herd.",
+                    advice: "Ideal for commercial dairies looking for a 'workhorse' buffalo. Monitor their weight, as they can become obese if not exercised. Ensure regular deworming to maintain high yield.",
+                    diet: "Balanced ration: 25kg green fodder, 5kg silage, and 2kg commercial concentrate. Ensure they get 40g of mineral mixture daily."
+                },
+                {
+                    name: "Pandharpuri",
+                    desc: "Native to the Solapur region of Maharashtra, the Pandharpuri is known for its exceptionally long, sword-like horns. These buffaloes are highly adapted to the hot and dry climate of Southern India and are famous for their walking ability. They can travel long distances for grazing without showing signs of fatigue. Their milk is of very high quality and is a staple for the local dairy industry in Maharashtra. Farmers appreciate them for their high fertility and the ease with which they can be managed in a semi-intensive farming system.",
+                    advice: "Ensure they have enough space to walk, as they are active animals. Their long horns can be a safety risk in crowded sheds; ensure proper spacing between animals. Provide shade during noon.",
+                    diet: "Dry Jowar stalks (Kadba) and sugarcane tops. Supplement with soybean meal and local forest grasses. Always provide a constant supply of fresh water."
+                }
+            ],
+            sheep: [
+                {
+                    name: "Nellore",
+                    desc: "The Nellore is India’s tallest sheep breed, originating from Andhra Pradesh. It has a distinctive goat-like appearance with long legs and a short coat rather than wool. This breed is primarily reared for mutton (meat) and is highly valued for its fast growth rate and lean carcass. Nellore sheep are very hardy and can walk long distances in search of pasture, making them a favorite for nomadic shepherds. Their high resistance to common parasites and adaptability to hot, humid climates make them a pillar of the Southern Indian livestock economy.",
+                    advice: "Focus on deworming every 3 months. They are best suited for the mutton market. Ensure they have access to dry shelters during heavy rains as they are prone to hoof rot in mud.",
+                    diet: "Free-range grazing on natural pastures. During finishing for the market, supplement with 250g of a grain mix (Maize and Pulse husks) to improve weight gain."
+                },
+                {
+                    name: "Marwari",
+                    desc: "The Marwari is a sturdy sheep breed from the Rajasthan desert, known for its black face and white body. It produces a coarse type of wool that is used globally in the carpet industry. Marwaris are incredibly resilient; they can survive for days without water and are highly resistant to heat and pests. They have a strong flocking instinct, making them easy to manage in large numbers. For a farmer in arid regions, the Marwari provides a steady income through wool twice a year and mutton sales at the end of its cycle.",
+                    advice: "Shear the wool twice a year—once in March and once in September. Keep the flock together to prevent stress. Regularly check their black faces for any signs of skin irritation or pests.",
+                    diet: "Primarily feeds on desert shrubs and Khejri tree leaves. During drought, supplement with dry hay and 100g of crushed Bajra daily."
+                },
+                {
+                    name: "Deccani",
+                    desc: "Deccani sheep are native to the Deccan Plateau and are known for their ability to withstand the rocky and barren terrain of the region. They are dual-purpose sheep, providing both mutton and a rough, dark-colored wool used for traditional 'Gongadi' blankets. Deccani sheep are very low-maintenance and are often kept by marginal farmers. They have a strong immunity to local diseases and are very efficient at finding food in sparse landscapes. Their meat is highly flavorful, making them popular in local markets across Maharashtra and Karnataka.",
+                    advice: "Provide mineral licks in the pens to prevent nutritional deficiencies. They are suited for rocky areas, so ensure their hooves are trimmed if they are kept in soft-stall environments. Shelter from cold is necessary.",
+                    diet: "Stubble grazing and lopped tree leaves (Subabul). During the breeding season, provide an additional 150g of concentrate mix per sheep."
+                },
+                {
+                    name: "Bellary",
+                    desc: "Found in the Bellary district of Karnataka, this breed is closely related to the Deccani but has its own distinct characteristics. They are medium-sized sheep, usually black or grey, and are reared for both wool and meat. Bellary sheep are well-adapted to the semi-arid climate of South-Central India. They are known for their high lambing rate and mothering ability. Farmers value them because they are very easy to handle and do not require expensive feed, thriving mostly on natural forest and field grazing.",
+                    advice: "Avoid high-humidity housing as it can lead to pneumonia in this breed. Regular dipping in medicated water is needed to prevent ectoparasites. Focus on selling male lambs for mutton.",
+                    diet: "Groundnut haulms and local grass varieties. Provide 200g of cotton-seed cake for pregnant ewes to ensure healthy lamb development."
+                },
+                {
+                    name: "Mandya",
+                    desc: "The Mandya sheep is a specialized mutton breed from Karnataka, easily identified by its compact, 'U-shaped' body and white coat. It is considered one of the best meat-producing sheep in India due to its high dressing percentage and tender meat. Mandya sheep are generally kept in stall-fed or semi-intensive systems rather than wide grazing. They have a distinctively small tail and a wide chest. Because of their fast growth and high market demand for their mutton, they are a favorite for commercial sheep farming ventures.",
+                    advice: "Maintain strictly dry shed floors to prevent foot-rot. They are best for intensive farming. Ensure proper vaccination against Enterotoxemia (ET) before the monsoon season starts.",
+                    diet: "Requires high-quality green fodder like Lucerne and Sorghum. Supplement with a concentrate mix (Maize, Groundnut cake) at 300g per day for fattening."
+                },
+                {
+                    name: "Ganjam",
+                    desc: "Hailing from Odisha, Ganjam sheep are primarily reared for meat and are a vital part of the coastal livestock economy. They are medium-sized sheep with a coat that is usually brown or reddish. Ganjam sheep are exceptionally hardy against the high humidity and heavy rainfall of the Eastern coast. They are prolific breeders and are often managed in migratory systems where they graze in forest areas. Their meat is lean and highly sought after in the local Eastern Indian markets, providing a reliable income for tribal and rural farmers.",
+                    advice: "Vaccinate against PPR (Sheep Plague) annually. They love forest grazing, so ensure they are protected from predators during the day. Provide salt-enriched water in coastal areas.",
+                    diet: "Forest grazing on local shrubs and tree loppings like Jackfruit and Tamarind leaves. Supplement with rice bran (100g) during the rainy season when grazing is limited."
+                },
+                {
+                    name: "Patanwadi",
+                    desc: "The Patanwadi is a premier wool sheep breed from Gujarat, famous for its superior quality 'hosiery' wool. They have a brown face and a body covered in fine white wool. Patanwadi sheep are also significant milk producers, with their milk being used locally for health benefits. They are well-adapted to the saline and dry plains of the Saurashtra region. Farmers often maintain Patanwadi sheep for their three-way income: wool, milk, and mutton. They require careful management of their fleece to ensure the high market value of the wool is maintained.",
+                    advice: "Regular spraying or dipping is essential to keep the fine wool free from mites and lice. Shear the sheep before the onset of the hot summer. Protect the flock from heavy mud to keep wool clean.",
+                    diet: "Requires cultivated fodder like Lucerne and green Maize. Provide a mineral mixture to support wool growth and 200g of crushed grains during the wool-growing season."
+                }
+            ],
+            goat: [
+                {
+                    name: "Jamunapari",
+                    desc: "The Jamunapari is the 'King of Goats' and one of the most majestic breeds in the world. Originally from Uttar Pradesh, they are large goats with a distinctively humped Roman nose and long, pendulous ears. They are primarily a dairy breed, producing high quantities of milk for over 200 days a year. Jamunaparis are very tall and have a long hair coat on their back thighs, known as 'feathers.' Their large size and impressive appearance make them highly valuable in the livestock market, particularly during festivals and for breeding purposes.",
+                    advice: "They are 'browsers'—hang their fodder at a height of 4 feet to mimic tree grazing. They need daily exercise to maintain their large frames. Provide a tall, well-ventilated shed.",
+                    diet: "Tree leaves are essential: Neem, Banyan, and Pipal. Supplement with 300g of concentrate mix (crushed maize and gram) and 50g of mineral mixture daily."
+                },
+                {
+                    name: "Barbari",
+                    desc: "The Barbari is a small, compact goat breed from Northern India, known for its colorful spotted coat and alert appearance. They are highly prolific, frequently giving birth to twins and triplets, which maximizes profit for the farmer. Barbaris are the best goats for 'stall-feeding' because they do not require wide grazing lands and stay healthy in confined spaces. They have a high growth rate and are very efficient at converting kitchen waste and crop residues into high-quality meat. Their small size makes them easy for women and children to manage in a household setting.",
+                    advice: "Ideal for urban or small-scale farming. Ensure the shed is not stuffy, as they need fresh air. Keep a record of their births, as they multiply very quickly and need organized weaning.",
+                    diet: "Can thrive on kitchen waste, vegetable peels, and local grasses. Supplement with 150g of concentrate for kids and 250g for pregnant does to ensure healthy litters."
+                },
+                {
+                    name: "Beetal",
+                    desc: "Beetal goats are the pride of Punjab and are often considered the Northern equivalent of the Jamunapari. They are large-bodied, usually black or brown with white spots, and have long drooping ears. Beetals are excellent milkers and are widely used in commercial goat dairies across India. They are more adaptable to stall-feeding than Jamunaparis and have a very high growth rate. Their skins are also of superior quality and are used in the high-end leather industry. A Beetal buck is often a symbol of status and a prized asset for any goat farmer.",
+                    advice: "Excellent for commercial dairy; provide extra calcium during lactation to prevent milk fever. They are strong animals—ensure the fencing is high and secure. Maintain a clean milking area.",
+                    diet: "Green fodder like Berseem and Guar is ideal. Provide 400g of concentrate mix and ensure they have access to mineral blocks to prevent nutritional deficiencies."
+                },
+                {
+                    name: "Sirohi",
+                    desc: "Native to the Sirohi district of Rajasthan, these goats are easily identified by their brown coat with dark patches. They are incredibly hardy, heat-tolerant, and resistant to most common goat diseases like PPR. Sirohi goats are primarily reared for meat and are famous for their rapid weight gain on a minimal diet. They are very docile and easy to manage in large herds. For a farmer in a hot and dry climate, the Sirohi is the safest investment because of its low mortality rate and high market demand for its tender meat.",
+                    advice: "Best for semi-arid regions. Avoid overcrowding to prevent stress-related illnesses. They are very hardy, so focus on basic hygiene and timely vaccinations. Provide ample shade.",
+                    diet: "Requires dry fodder (hay) and tree loppings like Prosopis (Khejri). Supplement with 200g of crushed Bajra or Maize to support their fast growth during the first 6 months."
+                },
+                {
+                    name: "Osmanabadi",
+                    desc: "The Osmanabadi is a hardy goat breed from Maharashtra, mostly jet-black in color and famous for its high fertility. It is a dual-purpose breed, providing both good quality meat and milk. Osmanabadis are highly adaptable to the erratic climate of Central India and can survive on poor quality grazing. They are known for their high twinning rate, often producing two kids every 8 months. Farmers value them because they are very resilient to the 'Haemorrhagic Septicemia' disease and are low-maintenance in terms of both feeding and housing.",
+                    advice: "Ideal for farmers with limited grazing land. Focus on kid management, as they produce many twins. Ensure the shed is dry during the monsoon to prevent respiratory issues.",
+                    diet: "Natural shrubs, Subabul leaves, and local grasses. During pregnancy, supplement the doe with 200g of pulse husks and a small amount of jaggery for energy."
+                },
+                {
+                    name: "Black Bengal",
+                    desc: "The Black Bengal is a small goat found in Eastern India and Bangladesh, world-renowned for its meat and leather quality. It is a dwarf breed with a high reproductive rate, often giving birth to multiple kids twice a year. Its meat is considered the most delicious among all goat breeds, and its skin (known as 'Kushtia') is a premium export item. Black Bengals are very efficient at scavenging for food and require almost no specialized feed. Despite their small size, they are a major source of income for millions of rural households in West Bengal and Odisha.",
+                    advice: "Highly sensitive to cold and damp weather; provide warm bedding (straw) during winter. Keep them strictly dry to avoid skin rot. Ensure kids are warm as they have low body fat.",
+                    diet: "Grazing on field bunds and tree leaves like Jackfruit. They don't need much concentrate, but 50g of rice bran can help them maintain weight during the lean season."
+                },
+                {
+                    name: "Jakhrana",
+                    desc: "Jakhrana goats are elite milkers from the Alwar region of Rajasthan, often looking like a larger version of the Beetal. They are mostly black with white spots on the ears and muzzle. Jakhrana goats are famous for their long lactation periods and high milk yield, which often exceeds 3 liters a day. They are larger than most other Rajasthani goats and have a very straight, sleek body. Farmers value them as a 'poor man's cow' because they provide enough milk for a whole family plus a surplus to sell in the local market.",
+                    advice: "Focus on clean milking practices as they are heavy milkers. They are best kept in stall-fed conditions to maximize their milk potential. Ensure regular hoof trimming for these large goats.",
+                    diet: "High quality green maize and Cowpea fodder. Provide 500g of concentrate mix (Wheat bran, Barley, and cakes) during their peak milking months."
+                }
+            ]
+        };
+
+        function filterCategory(category, btn) {
+            document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+            btn.classList.add('active');
+
+            const grid = document.getElementById('breedGrid');
+            grid.innerHTML = '';
+
+            livestockData[category].forEach(breed => {
+                const card = document.createElement('div');
+                card.className = 'breed-card';
+                card.innerHTML = `
+                <img src="static/${breed.name}.jpg" alt="${breed.name}">
+                <div class="card-content">
+                    <h3>${breed.name}</h3>
+                </div>
+            `;
+                card.onclick = () => openModal(breed);
+                grid.appendChild(card);
+            });
+        }
+
+        function openModal(breed) {
+            const modal = document.getElementById('breedModal');
+            const body = document.getElementById('modalBody');
+            body.innerHTML = `
+            <div class="modal-header-info">
+                <h2><i class="fas fa-info-circle"></i> ${breed.name} Encyclopedia</h2>
+            </div>
+            <p class="desc-text">${breed.desc}</p>
+            <div class="info-title"><i class="fas fa-user-tie"></i> Farmer's Expert Advice</div>
+            <div class="advice-card">${breed.advice}</div>
+            <div class="info-title"><i class="fas fa-utensils"></i> Recommended Diet Plan</div>
+            <div class="diet-card">${breed.diet}</div>
+        `;
+            modal.style.display = 'block';
+            document.body.style.overflow = 'hidden';
+        }
+
+        function closeModal() {
+            document.getElementById('breedModal').style.display = 'none';
+            document.body.style.overflow = 'auto';
+        }
+
+        window.onclick = (e) => { if (e.target.className === 'modal') closeModal(); };
+
+        window.onload = () => filterCategory('cow', document.querySelector('.filter-btn'));
+        
+        
+        document.getElementById("hamburger").addEventListener("click", function (event) {
+            document.getElementById("hamburger").style.display = "none";
+            document.getElementById("close").style.display = "block";
+            document.getElementById("sideMenu").style.left = "5px";
+        });
+        document.getElementById("close").addEventListener("click", function (event) {
+            document.getElementById("close").style.display = "none";
+            document.getElementById("hamburger").style.display = "block";
+            document.getElementById("sideMenu").style.left = "-270px";
+        });
+    </script>
+</body>
+
+</html>

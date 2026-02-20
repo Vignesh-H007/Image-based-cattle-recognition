@@ -2,31 +2,54 @@ import os
 import io
 import json
 import sqlite3
-# Added session and redirect
 from flask import Flask, request, jsonify, render_template, session, redirect, url_for
 from google import genai
 from google.genai.errors import APIError
 from PIL import Image
 from pydantic import BaseModel, Field
 from typing import List
+from dotenv import load_dotenv
+import mysql.connector
+
+DB_FOLDER = "/data" 
+if not os.path.isdir(DB_FOLDER):
+    DB_FOLDER = "."
+
+DB_PATH = os.path.join(DB_FOLDER, "users.db")
 
 def get_db_connection():
-    conn = sqlite3.connect("users.db")
-    conn.row_factory = sqlite3.Row
-    return conn
+    return mysql.connector.connect(
+        host=os.getenv("DB_HOST", "localhost"),
+        user=os.getenv("DB_USER", "root"),
+        password=os.getenv("DB_PASSWORD", "itachiuchiha010"),
+        database=os.getenv("DB_NAME", "cattle_db")
+    )
 
 def init_db():
     conn = get_db_connection()
     cursor = conn.cursor()
+    
     cursor.execute("""
         CREATE TABLE IF NOT EXISTS users (
-            id INTEGER PRIMARY KEY AUTOINCREMENT,
-            email TEXT NOT NULL,
-            password TEXT NOT NULL
+            id INT AUTO_INCREMENT PRIMARY KEY,
+            email VARCHAR(255) NOT NULL,
+            password VARCHAR(255) NOT NULL
         )
     """)
 
+    cursor.execute("""
+        CREATE TABLE IF NOT EXISTS cattles (
+            id INT AUTO_INCREMENT PRIMARY KEY,
+            cattle_type VARCHAR(50),
+            cattle_name VARCHAR(100),
+            breed VARCHAR(100),
+            vet_visit VARCHAR(50),
+            age VARCHAR(10),
+            health_notes TEXT
+        )
+    """)
     conn.commit()
+    cursor.close()
     conn.close()
 
 init_db()
@@ -50,12 +73,41 @@ def login():
     email = data.get("email")
     password = data.get("password")
 
-    # simple hardcoded login (as requested)
-    if email == "farmer123@gmail.com" and password == "123456":
+    conn = get_db_connection()
+    cursor = conn.cursor(dictionary=True)
+    
+    cursor.execute("SELECT * FROM users WHERE email = %s AND password = %s", (email, password))
+    user = cursor.fetchone()
+    
+    cursor.close()
+    conn.close()
+
+    if user:
         session["logged_in"] = True
         return jsonify({"status": "success"})
     else:
         return jsonify({"status": "fail"}), 401
+
+@app.route("/signup", methods=["POST"])
+def signup():
+    data = request.get_json()
+    email = data.get("email")
+    password = data.get("password")
+
+    conn = get_db_connection()
+    cursor = conn.cursor()
+    try:
+        cursor.execute("INSERT INTO users (email, password) VALUES (%s, %s)", (email, password))
+        conn.commit()
+        session["logged_in"] = True 
+        return jsonify({"status": "success"})
+    except mysql.connector.Error as err:
+        if err.errno == 1062:
+            return jsonify({"status": "fail", "message": "User already exists"}), 400
+        return jsonify({"status": "fail", "message": str(err)}), 500
+    finally:
+        cursor.close()
+        conn.close()
 
 # -------------------------------------------------
 # Logout
@@ -84,9 +136,41 @@ def encylopedia_page():
 def record_page():
     if not session.get("logged_in"):
         return redirect(url_for("login_page"))
-    return render_template("records.html")
+    
+    conn = get_db_connection()
+    cursor = conn.cursor(dictionary=True)
+    cursor.execute("SELECT * FROM cattles")
+    all_records = cursor.fetchall()
+    cursor.close()
+    conn.close()
+    
+    return render_template("records.html", records=all_records)
+
+@app.route('/add_record', methods=['POST'])
+def add_record():
+    if not session.get("logged_in"):
+        return jsonify({"status": "fail", "message": "Unauthorized"}), 401
+
+    c_type = request.form.get('cattle_type')
+    c_name = request.form.get('cattle_name')
+    breed = request.form.get('breed')
+    vet_visit = request.form.get('vet_visit')
+    age = request.form.get('age')
+    notes = request.form.get('health_notes')
+
+    conn = get_db_connection()
+    cursor = conn.cursor()
+    query = """INSERT INTO cattles (cattle_type, cattle_name, breed, vet_visit, age, health_notes) 
+               VALUES (%s, %s, %s, %s, %s, %s)"""
+    cursor.execute(query, (c_type, c_name, breed, vet_visit, age, notes))
+    conn.commit()
+    cursor.close()
+    conn.close()
+    
+    return jsonify({"status": "success"})
 
 try:
+    load_dotenv()
     client = genai.Client()
 except Exception as e:
     print(f"Error initializing Gemini client: {e}")
@@ -105,7 +189,7 @@ class CattleAnalysis(BaseModel):
     purpose_primary: str = Field(description=" 2- 3 lines of the primary purpose of this breed and how they can be used effeciently in agriculture(e.g., 'Dairy', 'Beef', 'Dual-Purpose', 'Draft').")
     purpose_secondary: str = Field(description="Confidence Score for the detection of the cattle and also what helped to identify the cattle (eg., 'holstein has black and white pattern').")
     diseases: str = Field(description="From the image, detect if the cattle is healthy or affected by any diseases return 2-3 lines : healthy if no diseases detected else return disease type,treatement,and causes.")
-
+    region: str = Field(description="the region that identified cattle is originated,e.g gir is orginated from gujarat")
 # ----------------------------------------------------------------------
 # 3. Routes
 # ----------------------------------------------------------------------
@@ -138,6 +222,7 @@ def upload_cattle_photo():
 
             prompt_text = (
                 "You are an expert livestock analyst. Analyze the provided image of the cattle. "
+                "If the animal is identified as a goat or sheep, then the purpose of that cattle is meat in case of goat and wool production in case of sheep"
                 "Identify the breed and provide a detailed analysis of its milk quality, ideal temperature/climate, and primary/secondary purposes. "
                 "Your entire response MUST be a JSON object that strictly conforms to the provided schema."
             )
@@ -167,4 +252,4 @@ def upload_cattle_photo():
 
 if __name__ == '__main__':
     # Runs the app, listening on port 5000 by default
-    app.run(debug=True, port=int(os.environ.get("PORT", 5000)))
+    app.run(debug=False, port=int(os.environ.get("PORT", 8080)))

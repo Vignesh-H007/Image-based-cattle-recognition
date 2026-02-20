@@ -1,5 +1,8 @@
-Flask
-google-genai
-Pillow
+flask
+ultralytics
+opencv-python-headless
+pillow
+numpy
 pydantic
-gunicorn
+google-generativeai
+mysql-connecter-python

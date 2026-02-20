@@ -8,6 +8,7 @@ venv/
 
 # Operating System Files
 .DS_Store
+*.db_instance/
 
 # Critical: Keep your Gemini API Key SAFE!
 .gemini.key
@@ -17,5 +18,4 @@ venv/
 users.db
 __pycache__/
 .env
-records.html
-encylopedia.html
+users.db

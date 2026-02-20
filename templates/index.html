@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Image Based Cattle Recognition</title>
+    <title>Recognition | MyCattle</title>
 
     <!-- Icons -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
@@ -13,13 +13,13 @@
         body {
             margin: 0;
             font-family: "Inter", sans-serif;
-            background: #f1f8f3;
+            background: #f5f0e6;
             color: #1b5e20;
         }
 
         /* HERO SECTION */
         .hero {
-            background: #228b22;
+            background: #3A5A40;
             padding: 30px 20px;
             text-align: center;
             color: white;
@@ -74,7 +74,7 @@
         button {
             margin-top: 15px;
             padding: 12px 20px;
-            background: #2e7d32;
+            background: #3A5A40;
             border: none;
             border-radius: 8px;
             color: white;
@@ -84,7 +84,7 @@
         }
 
         button:hover {
-            background: #226d28;
+            box-shadow: 0 2px 10px #E9C46A;
         }
 
         /* LOADER */
@@ -108,7 +108,6 @@
             display: none;
         }
 
-        /* RESULT CARD */
         .result-card {
             background: #e8f5e9;
             border: 2px solid #66bb6a;
@@ -151,18 +150,111 @@
         .logout {
             padding: 0 8px;
         }
+
+        .navbar {
+            height: 60px;
+            background: #3A5A40;
+            color: white;
+            display: flex;
+            align-items: center;
+            padding: 0 16px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.15);
+            margin-top: 5px;
+        }
+
+        .nav-left {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+        }
+
+        .hamburger {
+            font-size: 26px;
+            cursor: pointer;
+            transition: transform 0.2s ease, color 0.2s ease;
+        }
+
+        .hamburger:hover {
+            transform: scale(1.1);
+            color: #E9C46A;
+        }
+
+        .logo {
+            font-size: 20px;
+            font-weight: bold;
+            letter-spacing: 0.5px;
+        }
+
+        .side-menu {
+            position: fixed;
+            top: 4rem;
+            left: -270px;
+            width: 250px;
+            height: 80vh;
+            background: white;
+            padding-top: 30px;
+            transition: 0.3s ease;
+            z-index: 1000;
+            border-radius: 20px;
+            box-shadow: 0 12px 30px rgba(0, 0, 0, 0.15);
+            border-right: 6px solid #E9C46A;
+        }
+
+        .side-menu ul {
+            list-style: none;
+        }
+
+        .side-menu li {
+            margin: 10px 0;
+        }
+
+        .side-menu a {
+            color: #2F3E46;
+            text-decoration: none;
+            padding: 12px 24px;
+            display: block;
+            border-radius: 8px;
+            font-weight: 600;
+            transition: all 0.2s ease;
+        }
+
+        .side-menu a:hover {
+            background: #E9C46A;
+            color: #003049;
+            border-top-left-radius: 20px;
+            border-bottom-left-radius: 20px;
+            transform: translateX(4px);
+            color: #fff;
+        }
     </style>
 </head>
 
 <body>
-    <div class="logout"><button id="logoutBtn">Log-out</button></div>
-    <!-- HERO SECTION -->
-    <!--<select id="languageSelect">
+    <!--<div class="logout"><button id="logoutBtn">Log-out</button></div>
+     HERO SECTION
+    <select id="languageSelect">
         <option value="en">English</option>
         <option value="ta">தமிழ்</option>
         <option value="kn">ಕನ್ನಡ</option>
         <option value="hi">हिंदी</option>
     </select>-->
+
+    <header class="navbar">
+        <div class="nav-left">
+            <div class="hamburger" id="hamburger">&#9776;</div>
+            <div class="hamburger" id="close" style="display: none;"><i class="fa-solid fa-x"></i></div>
+            <div class="logo">MyCattle</div>
+        </div>
+    </header>
+
+    <nav class="side-menu" id="sideMenu">
+        <ul>
+            <li><a href="/recognition">Cattle Recognition</a></li>
+            <li><a href="/records">Cattle Records</a></li>
+            <li><a href="/encylopedia">Cattle Encyclopedia</a></li>
+            <li><a href="/logout">Logout</a></li>
+        </ul>
+    </nav>
 
     <section class="hero">
         <h1 id="title">Image Based Cattle Recognition</h1>
@@ -173,7 +265,6 @@
         </p>
     </section>
 
-    <!-- UPLOAD BOX -->
     <div class="upload-container">
 
         <div class="drop-zone" id="dropZone">
@@ -185,11 +276,10 @@
 
         <button onclick="uploadImage()" id="uploadbtn">Analyze Image</button>
 
-        <!-- LOADER -->
         <div id="loader" class="loader hidden"></div>
     </div>
 
-    <!-- RESULT CARD -->
+
     <div id="result-card" class="result-card hidden">
         <h2><i class="fa-solid fa-cow"></i> Identified Breed</h2>
 
@@ -207,9 +297,10 @@
         <p><span id="r-diseases"></span></p>
         <h3><i class="fa-solid fa-thumbs-up"></i> Confidence</h3>
         <p><span id="r-secondary"></span></p>
+        <h3><i class="fa-solid fa-location-dot"></i> Cattle's region</h3>
+        <p><span id="r-region"></span></p>
     </div>
 
-    <!-- JAVASCRIPT -->
     <script>
         const preview = document.getElementById("preview");
         const fileInput = document.getElementById("fileInput");
@@ -277,6 +368,7 @@
                     document.getElementById("r-primary").textContent = r.purpose_primary;
                     document.getElementById("r-secondary").textContent = r.purpose_secondary;
                     document.getElementById("r-diseases").textContent = r.diseases;
+                    document.getElementById("r-region").textContent = r.region;
 
                     resultCard.classList.remove("hidden");
                 })
@@ -286,23 +378,23 @@
                 });
         }
 
-        document.getElementById("logoutBtn").addEventListener("click", () => {
+        /*document.getElementById("logoutBtn").addEventListener("click", () => {
             window.location.href = "/logout";
         });
 
         const translations = {
-                en: {
+            en: {
                 title: "Image Based Cattle Recognition",
                 description: "This system helps farmers identify cattle instantly using image recognition.It simplifies farm management by providing breed details, milk quality,ideal temperature ranges, and more – all through a single photo.",
                 dragDrop: "Drag & drop cattle image here",
                 or: "or",
                 uploadbtn: "Analyze Image"
-                ,logoutBtn: "Log-out"
+                , logoutBtn: "Log-out"
             },
             ta: {
                 title: "பட அடிப்படையிலான மாடு அடையாளம் காணும் அமைப்பு",
                 description: "இந்த அமைப்பு விவசாயிகள் மாடுகளை உடனடியாக அடையாளம் காண உதவுகிறது.ஒரே புகைப்படத்தின் மூலம் இன விவரம், பால் தரம்,சிறந்த வெப்பநிலை மற்றும் மேலும் பல தகவல்களை வழங்கி பண்ணை நிர்வாகத்தை எளிதாக்குகிறது"
-                ,dragDrop: "மாட்டின் படத்தை இங்கே இழுத்து விடவும்",
+                , dragDrop: "மாட்டின் படத்தை இங்கே இழுத்து விடவும்",
                 or: "அல்லது",
                 uploadbtn: "படத்தை பகுப்பாய்வு செய்யவும்",
                 logoutBtn: "வெளியேறு"
@@ -310,7 +402,7 @@
             kn: {
                 title: "ಚಿತ್ರ ಆಧಾರಿತ ಹಸು ಗುರುತింపు",
                 description: "ಈ ವ್ಯವಸ್ಥೆ ಚಿತ್ರಗಳನ್ನು ಬಳಸಿಕೊಂಡು ರೈತರಿಗೆ ಹಸುಗಳನ್ನು ತಕ್ಷಣ ಗುರುತಿಸಲು ಸಹಾಯ ಮಾಡುತ್ತದೆ.ಒಂದು ಫೋಟೋದ ಮೂಲಕ ಹಸುಗಳ ಜಾತಿ ವಿವರ, ಹಾಲಿನ ಗುಣಮಟ್ಟ, ಸೂಕ್ತ ತಾಪಮಾನ ಮತ್ತು ಇನ್ನಷ್ಟು ಮಾಹಿತಿಯನ್ನು ನೀಡುವ ಮೂಲಕ ಕೃಷಿ ನಿರ್ವಹಣೆಯನ್ನು ಸುಲಭಗೊಳಿಸುತ್ತದೆ."
-                ,dragDrop: "ಹಸು ಚಿತ್ರದನ್ನು ಇಲ್ಲಿ ಎಳೆದು ಬಿಡಿ",
+                , dragDrop: "ಹಸು ಚಿತ್ರದನ್ನು ಇಲ್ಲಿ ಎಳೆದು ಬಿಡಿ",
                 or: "ಅಥವಾ",
                 uploadbtn: "ಚಿತ್ರವನ್ನು ವಿಶ್ಲೇಷಿಸಿ",
                 logoutBtn: "ಲಾಗ್ ಔಟ್"
@@ -318,27 +410,38 @@
             hi: {
                 title: "छवि आधारित पशु पहचान",
                 description: "यह प्रणाली छवियों का उपयोग करके किसानों को पशुओं की तुरंत पहचान करने में मदद करती है। एक ही फोटो के माध्यम से नस्ल की जानकारी, दूध की गुणवत्ता, उपयुक्त तापमान और अन्य विवरण प्रदान कर खेती प्रबंधन को आसान बनाती है।"
-                ,dragDrop: "पशु की छवि को यहाँ खींचकर छोड़ें",
+                , dragDrop: "पशु की छवि को यहाँ खींचकर छोड़ें",
                 or: "या"
-                ,uploadbtn: "छवि का विश्लेषण करें",
+                , uploadbtn: "छवि का विश्लेषण करें",
                 logoutBtn: "लॉग आउट"
             }
         };
 
-            function setLanguage(lang) {
-                document.getElementById("title").innerText = translations[lang].title;
-                document.getElementById("description").innerText = translations[lang].description;
-                document.getElementById("dragDrop").innerText = translations[lang].dragDrop;
-                document.getElementById("or").innerText = translations[lang].or;
-                document.getElementById("uploadbtn").innerText = translations[lang].uploadbtn;
-                document.getElementById("logoutBtn").innerText = translations[lang].logoutBtn;
-            }
+        function setLanguage(lang) {
+            document.getElementById("title").innerText = translations[lang].title;
+            document.getElementById("description").innerText = translations[lang].description;
+            document.getElementById("dragDrop").innerText = translations[lang].dragDrop;
+            document.getElementById("or").innerText = translations[lang].or;
+            document.getElementById("uploadbtn").innerText = translations[lang].uploadbtn;
+            document.getElementById("logoutBtn").innerText = translations[lang].logoutBtn;
+        }
 
-            document.getElementById("languageSelect").addEventListener("change", (e) => {
-                setLanguage(e.target.value);
-            });
+        document.getElementById("languageSelect").addEventListener("change", (e) => {
+            setLanguage(e.target.value);
+        });
 
-            setLanguage("en");
+        setLanguage("en");*/
+
+        document.getElementById("hamburger").addEventListener("click", function (event) {
+            document.getElementById("hamburger").style.display = "none";
+            document.getElementById("close").style.display = "block";
+            document.getElementById("sideMenu").style.left = "5px";
+        });
+        document.getElementById("close").addEventListener("click", function (event) {
+            document.getElementById("close").style.display = "none";
+            document.getElementById("hamburger").style.display = "block";
+            document.getElementById("sideMenu").style.left = "-270px";
+        });
     </script>
 </body>
 

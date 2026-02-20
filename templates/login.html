@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Login | Image Based Cattle Recognition</title>
+    <title>Signup | login | MyCattle</title>
 
     <link rel="stylesheet"
           href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/7.0.1/css/all.min.css"
@@ -24,7 +24,6 @@
             align-items: center;
         }
 
-        /* Main Card */
         .login {
             background: #fff;
             width: 90%;
@@ -115,7 +114,7 @@
         }
 
         input::placeholder {
-            color: #228b22;
+            color: rgb(34,139,34,0.6);
         }
 
         input:focus {
@@ -170,8 +169,8 @@
     <div class="or-text">OR CONTINUE WITH EMAIL</div>-->
 
     <form>
-        <input type="email" id="email" placeholder="farmer123@gmail.com" required>
-        <input type="password" id="password" placeholder="Password (min 6 characters)" required>
+        <input type="email" id="email" placeholder="e.g :farmer123@gmail.com" required>
+        <input type="password" id="password" placeholder="Password (max 6 characters)" required>
 
         <div class="links">
             <a href="#" onclick="changeTextToLogin()">Already have an account?</a>
@@ -183,43 +182,51 @@
 </div>
 
 <script>
-const emailInput = document.getElementById("email");
-const passwordInput = document.getElementById("password");
+    
+    let isLogin = false;
+    const emailInput = document.getElementById("email");
+    const passwordInput = document.getElementById("password");
 
-document.getElementById("submit").addEventListener("click", async (e) => {
-    e.preventDefault();
-    const email = emailInput.value;
-    const password = passwordInput.value;
+    document.getElementById("submit").addEventListener("click", async (e) => {
+        e.preventDefault();
+        const email = emailInput.value;
+        const password = passwordInput.value;
 
-    try {
-        const response = await fetch("/login", {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ email, password })
-        });
+        const endpoint = isLogin ? "/login" : "/signup";
 
-        const result = await response.json();
-        if (result.status === "success") {
-            window.location.href = "/recognition";
-        } else {
-            alert("Login failed. Check credentials.");
+        try {
+            const response = await fetch(endpoint, {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ email, password })
+            });
+
+            const result = await response.json();
+            if (result.status === "success") {
+                window.location.href = "/recognition";
+            } else {
+                alert("Login failed. Check credentials.");
+            }
+        } catch {
+            alert("Server error. Try again later.");
         }
-    } catch {
-        alert("Server error. Try again later.");
+    });
+
+    function changeTextToSignUp() {
+        isLogin = false;
+        document.getElementById("title").innerText = "Get Started";
+        document.getElementById("sign-up").style.background = "white";
+        document.getElementById("login").style.background = "transparent";
+        document.getElementById("title-id").innerText = "Signup";
     }
-});
 
-function changeTextToSignUp() {
-    document.getElementById("title").innerText = "Get Started";
-    document.getElementById("sign-up").style.background = "white";
-    document.getElementById("login").style.background = "transparent";
-}
-
-function changeTextToLogin() {
-    document.getElementById("title").innerText = "Welcome Back";
-    document.getElementById("login").style.background = "white";
-    document.getElementById("sign-up").style.background = "transparent";
-}
+    function changeTextToLogin() {
+        isLogin = true;
+        document.getElementById("title").innerText = "Welcome Back";
+        document.getElementById("login").style.background = "white";
+        document.getElementById("sign-up").style.background = "transparent";
+        document.getElementById("title-id").innerText = "Login";
+    }
 </script>
 
 </body>
