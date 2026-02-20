@@ -9,7 +9,6 @@ from PIL import Image
 from pydantic import BaseModel, Field
 from typing import List
 from dotenv import load_dotenv
-import mysql.connector
 
 DB_FOLDER = "/data" 
 if not os.path.isdir(DB_FOLDER):
@@ -17,12 +16,13 @@ if not os.path.isdir(DB_FOLDER):
 
 DB_PATH = os.path.join(DB_FOLDER, "users.db")
 
+import psycopg2
+import psycopg2.extras
+
 def get_db_connection():
-    return mysql.connector.connect(
-        host=os.getenv("DB_HOST", "localhost"),
-        user=os.getenv("DB_USER", "root"),
-        password=os.getenv("DB_PASSWORD", "itachiuchiha010"),
-        database=os.getenv("DB_NAME", "cattle_db")
+    return psycopg2.connect(
+        os.getenv("DATABASE_URL"),
+        sslmode="require"
     )
 
 def init_db():
