@@ -5,5 +5,4 @@ pillow
 numpy
 pydantic
 google-generativeai
-mysql-connector-python
---extra-index-url
+psycopg2-binary
