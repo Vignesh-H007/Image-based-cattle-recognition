@@ -1,8 +1,7 @@
-flask
-ultralytics
-opencv-python-headless
-pillow
-numpy
-pydantic
-google-generativeai
+Flask
+gunicorn
 psycopg2-binary
+google-generativeai
+pydantic
+Pillow
+python-dotenv
