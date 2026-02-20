@@ -6,3 +6,4 @@ numpy
 pydantic
 google-generativeai
 mysql-connector-python
+--extra-index-url
