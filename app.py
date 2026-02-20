@@ -168,7 +168,7 @@ def add_record():
 
 try:
     load_dotenv()
-    client = genai.Client()
+    client = genai.Client(api_key='AIzaSyCo-OAA5X-yktZoLR9ZoD3hrWIeU6GuBVI')
 except Exception as e:
     print(f"Error initializing Gemini client: {e}")
     client = None
