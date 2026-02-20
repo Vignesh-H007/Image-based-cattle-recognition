@@ -252,6 +252,6 @@ def upload_cattle_photo():
         except Exception as e:
             return jsonify({"success": False, "error": f"An unexpected error occurred: {str(e)}"}), 500
 
-if __name__ == '__main__':
-    # Runs the app, listening on port 5000 by default
-    app.run(debug=False, port=int(os.environ.get("PORT", 8080)))
+if __name__ == "__main__":
+    port = int(os.environ.get("PORT", 8080))
+    app.run(host="0.0.0.0", port=port)
