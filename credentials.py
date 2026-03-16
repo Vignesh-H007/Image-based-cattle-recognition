@@ -3,7 +3,7 @@ import sqlite3
 conn = sqlite3.connect("users.db")
 cursor = conn.cursor()
 
-cursor.execute("drop table cattles")
+#cursor.execute("drop table cattles")
 
 cursor.execute('''
         CREATE TABLE IF NOT EXISTS cattles (
